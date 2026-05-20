@@ -1,1 +1,0 @@
-# structpro.github.io
