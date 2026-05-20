@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyApp — Download Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #00e5ff;
+      --accent2: #7c3aed;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --success: #00d68f;
+      --warn: #ffb300;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* GRID BG */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* GLOW ORB */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .logo span { color: var(--accent); }
+
+    .nav-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 7vw, 76px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 48px;
+      line-height: 1.6;
+      font-weight: 400;
+      animation: fadeDown 0.6s 0.2s ease both;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* DOWNLOAD CARD */
+    .download-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.3s ease both;
+      transition: border-color 0.2s;
+    }
+
+    .download-card:hover {
+      border-color: rgba(0,229,255,0.3);
+    }
+
+    .download-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.6;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .app-info { flex: 1; }
+
+    .version-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: rgba(0,229,255,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,255,0.2);
+      padding: 3px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .app-name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .app-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .release-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      padding: 20px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* DOWNLOAD BUTTONS */
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .dl-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dl-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,229,255,0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .dl-btn:hover {
+      border-color: rgba(0,229,255,0.4);
+      transform: translateY(-2px);
+    }
+
+    .dl-btn:hover::after { opacity: 1; }
+
+    .dl-btn.primary {
+      background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(124,58,237,0.1));
+      border-color: rgba(0,229,255,0.3);
+    }
+
+    .dl-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .dl-info { flex: 1; }
+    .dl-os {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .dl-size {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .dl-arrow {
+      font-size: 18px;
+      color: var(--accent);
+      opacity: 0.6;
+    }
+
+    /* CHANGELOG */
+    .changelog-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .changelog-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .changelog-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #b0b0c0;
+    }
+
+    .change-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .tag-new { background: rgba(0,214,143,0.15); color: var(--success); }
+    .tag-fix { background: rgba(255,179,0,0.15); color: var(--warn); }
+    .tag-improve { background: rgba(0,229,255,0.1); color: var(--accent); }
+
+    /* HISTORY */
+    .history-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 36px;
+      animation: fadeUp 0.6s 0.5s ease both;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-ver {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .history-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      flex: 1;
+      text-align: center;
+    }
+
+    .history-dl {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid rgba(0,229,255,0.2);
+      padding: 4px 12px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .history-dl:hover {
+      background: rgba(0,229,255,0.1);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 48px 0 40px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 48px;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* LOADING STATE */
+    .loading-placeholder {
+      height: 20px;
+      background: linear-gradient(90deg, var(--border) 25%, rgba(255,255,255,0.05) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 60px 0 40px; }
+      .download-card, .changelog-card, .history-card { padding: 24px 20px; }
+      .card-top { flex-direction: column; }
+      .release-date { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <nav>
+    <div class="logo">My<span>App</span></div>
+    <div class="nav-tag">download center</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge" id="latest-badge">Đang tải...</div>
+    <h1>Tải xuống<br/><span class="highlight">phiên bản mới nhất</span></h1>
+    <p>Luôn cập nhật. Ổn định. Nhanh chóng. Chọn nền tảng của bạn bên dưới.</p>
+  </section>
+
+  <!-- DOWNLOAD CARD -->
+  <div class="download-card">
+    <div class="card-top">
+      <div class="app-info">
+        <div class="version-badge" id="version-label">v0.0.0</div>
+        <div class="app-name" id="app-name">MyApp</div>
+        <div class="app-desc" id="app-desc">Đang tải thông tin phiên bản...</div>
+      </div>
+      <div class="release-date" id="release-date">—</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-label">Kích thước</div>
+        <div class="stat-val" id="file-size">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Phiên bản</div>
+        <div class="stat-val" id="version-num">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Trạng thái</div>
+        <div class="stat-val" style="color: var(--success)">✓ Stable</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Lượt tải</div>
+        <div class="stat-val" id="dl-count">—</div>
+      </div>
+    </div>
+
+    <div class="download-grid" id="download-buttons">
+      <!-- Buttons rendered by JS -->
+    </div>
+  </div>
+
+  <!-- CHANGELOG -->
+  <div class="changelog-card">
+    <div class="section-title">Changelog mới nhất</div>
+    <ul class="changelog-list" id="changelog-list">
+      <li><span class="change-tag tag-new">NEW</span>Đang tải...</li>
+    </ul>
+  </div>
+
+  <!-- VERSION HISTORY -->
+  <div class="history-card">
+    <div class="section-title">Lịch sử phiên bản</div>
+    <div id="version-history">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://github.com" target="_blank">GitHub Releases</a> &nbsp;·&nbsp;
+    <a href="https://github.com/YOUR_USERNAME/YOUR_REPO/releases" target="_blank">Xem tất cả releases</a>
+  </footer>
+</div>
+
+<script>
+  // ============================================================
+  // ⚙️ CẤU HÌNH — Thay YOUR_USERNAME và YOUR_REPO của bạn
+  // ============================================================
+  const GITHUB_USER = "YOUR_USERNAME";
+  const GITHUB_REPO = "YOUR_REPO";
+  const APP_NAME    = "MyApp";
+  // ============================================================
+
+  const API = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases`;
+
+  // Platform detection map: asset name keywords → icon + label
+  const PLATFORM_MAP = [
+    { keywords: ["windows", "win", ".exe", ".msi"], icon: "🪟", label: "Windows" },
+    { keywords: ["mac", "darwin", ".dmg", ".pkg"],  icon: "🍎", label: "macOS" },
+    { keywords: ["linux", ".deb", ".rpm", ".appimage"], icon: "🐧", label: "Linux" },
+    { keywords: [".apk"], icon: "🤖", label: "Android" },
+    { keywords: [".ipa"], icon: "📱", label: "iOS" },
+    { keywords: [".zip", ".tar.gz", ".tar.xz"],     icon: "📦", label: "Tất cả nền tảng" },
+  ];
+
+  function detectPlatform(name) {
+    const lower = name.toLowerCase();
+    for (const p of PLATFORM_MAP) {
+      if (p.keywords.some(k => lower.includes(k))) return p;
+    }
+    return { icon: "💾", label: name };
+  }
+
+  function fmtSize(bytes) {
+    if (!bytes) return "—";
+    const mb = bytes / 1024 / 1024;
+    return mb >= 1 ? mb.toFixed(1) + " MB" : (bytes / 1024).toFixed(0) + " KB";
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString("vi-VN", { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  function fmtCount(n) {
+    if (!n) return "0";
+    return n >= 1000 ? (n / 1000).toFixed(1) + "k" : n.toString();
+  }
+
+  async function loadReleases() {
+    try {
+      const res = await fetch(API, { headers: { Accept: "application/vnd.github+json" } });
+      if (!res.ok) throw new Error("API error " + res.status);
+      const releases = await res.json();
+      if (!releases.length) throw new Error("No releases found");
+
+      const latest = releases[0];
+      renderLatest(latest);
+      renderHistory(releases.slice(1, 6));
+    } catch (e) {
+      document.getElementById("latest-badge").textContent = "Lỗi tải dữ liệu";
+      document.getElementById("app-desc").textContent = e.message + ". Kiểm tra cấu hình GITHUB_USER/REPO.";
+    }
+  }
+
+  function renderLatest(r) {
+    document.title = `${APP_NAME} ${r.tag_name} — Download`;
+    document.getElementById("app-name").textContent = APP_NAME;
+    document.getElementById("latest-badge").textContent = `🚀 Phiên bản mới nhất: ${r.tag_name}`;
+    document.getElementById("version-label").textContent = r.tag_name;
+    document.getElementById("version-num").textContent = r.tag_name;
+    document.getElementById("app-desc").textContent = r.name || `Phiên bản ${r.tag_name}`;
+    document.getElementById("release-date").textContent = "📅 " + fmtDate(r.published_at);
+
+    const totalDL = r.assets.reduce((a, x) => a + (x.download_count || 0), 0);
+    const totalSize = r.assets.reduce((a, x) => a + (x.size || 0), 0);
+    document.getElementById("dl-count").textContent = fmtCount(totalDL);
+    document.getElementById("file-size").textContent = fmtSize(totalSize);
+
+    // Buttons
+    const grid = document.getElementById("download-buttons");
+    grid.innerHTML = "";
+    if (!r.assets.length) {
+      grid.innerHTML = `<p style="color:var(--muted);font-size:14px;">Chưa có file đính kèm trong release này.</p>`;
+    } else {
+      r.assets.forEach((asset, i) => {
+        const plat = detectPlatform(asset.name);
+        const btn = document.createElement("a");
+        btn.href = asset.browser_download_url;
+        btn.className = "dl-btn" + (i === 0 ? " primary" : "");
+        btn.innerHTML = `
+          <div class="dl-icon">${plat.icon}</div>
+          <div class="dl-info">
+            <div class="dl-os">${plat.label}</div>
+            <div class="dl-size">${fmtSize(asset.size)} · ${fmtCount(asset.download_count)} lượt</div>
+          </div>
+          <div class="dl-arrow">↓</div>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    // Changelog from release body
+    const changelogEl = document.getElementById("changelog-list");
+    changelogEl.innerHTML = "";
+    if (r.body && r.body.trim()) {
+      const lines = r.body.trim().split("\n").filter(l => l.trim());
+      lines.slice(0, 8).forEach(line => {
+        const li = document.createElement("li");
+        let tag = "improve", tagLabel = "IMPROVE";
+        const lower = line.toLowerCase();
+        if (lower.includes("new") || lower.includes("thêm") || lower.includes("add")) { tag = "new"; tagLabel = "NEW"; }
+        else if (lower.includes("fix") || lower.includes("sửa") || lower.includes("bug")) { tag = "fix"; tagLabel = "FIX"; }
+        const text = line.replace(/^[-*#\d.]+\s*/, "").trim();
+        li.innerHTML = `<span class="change-tag tag-${tag}">${tagLabel}</span>${text}`;
+        changelogEl.appendChild(li);
+      });
+    } else {
+      changelogEl.innerHTML = `<li><span class="change-tag tag-new">NEW</span>Phiên bản ${r.tag_name} đã phát hành. Xem chi tiết trên GitHub.</li>`;
+    }
+  }
+
+  function renderHistory(releases) {
+    const container = document.getElementById("version-history");
+    if (!releases.length) {
+      container.innerHTML = `<p style="color:var(--muted);font-size:14px;">Chưa có lịch sử phiên bản.</p>`;
+      return;
+    }
+    container.innerHTML = releases.map(r => {
+      const firstAsset = r.assets[0];
+      const dlUrl = firstAsset ? firstAsset.browser_download_url : r.html_url;
+      return `
+        <div class="history-item">
+          <div class="history-ver">${r.tag_name}</div>
+          <div class="history-date">${fmtDate(r.published_at)}</div>
+          <a href="${dlUrl}" class="history-dl">Tải xuống</a>
+        </div>`;
+    }).join("");
+  }
+
+  loadReleases();
+</script>
+</body>
+</html>
